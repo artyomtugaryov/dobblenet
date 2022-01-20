@@ -8,4 +8,4 @@ As a basic detector was chosen [YoloV4 neural network](https://arxiv.org/abs/200
 
 In the releases you can find pre-trained Spot It detector in in darknet, TensorFlow 2.x and [OpenVINO IR](https://github.com/openvinotoolkit/openvino) formats.
 The latest result of the detector:
-![](./docs/images/visualize.dl_wb.jpg)
+![](./docs/images/visualize_dl_wb.jpg)
