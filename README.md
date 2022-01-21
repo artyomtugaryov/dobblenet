@@ -1,4 +1,4 @@
-# Spot It Detector
+# Dobblenet
 
 The project to automate recognition images shown on two cards in [Spot It](https://www.spotitgame.com/) game. 
 The main idea is to train an object detection neural network to recognize set of images on two cards separatly and match common classes in these cards.
