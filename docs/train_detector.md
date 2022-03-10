@@ -1,5 +1,27 @@
 # How to train YoloV4 Dobblenet in the Darknet format
 
+Once upon a time, when everyone worked from the office and did not think about remote work, my colleagues and I decided to take a break from work and play game that can distract us from work. We chose to play the Dobble (Spot it). Dobble is a speed and observation game for the everyone. The aim of the game -
+Each two cards have one symbol in common. You need to be the first to find and name it to win the card.
+
+After a number of games played we began to talk about what would be nice to create a programm that can help you to play Dobble or for example could be an opponent for you. This is a speed game, so a computer can be more faster than a the most speedy human. So the idea of creating an application for playing Dobble was born at that moment.
+
+We are working in a big OpenVINO team that are creating the framework for optimization and inference neural networks. Of course we wanted to use our framework to built our tools and a neural network should be the cornerstone of the tool. 
+
+It was absolutelly clear for us that the neural network shoud solve Object Detection task and the most popular model to solve OD task was YoloV4, we decided to use this topology.
+
+We understood that the we need a lot of data to train our custom YoloV4. We started to collect the dataset from taking photos of the dobble cards that we had. The decl of cards of this game collects 55 and we took around 4 photos of each card in different angles. There are around 390 photos as results. 
+But taking the photos is not the main problem of dataset collection, the main challenge is annotate each icon on each photo. There are 8 images in each photos, so there are 3120 in the 390 images. Annotate means dedicate cooddinats of each object in each photo. There are many different dataset formats that dedicates formats of storing images and annotations for each image. 
+To annotate the dataset we used CVAT tool that provides usefull interface for annoations: in each image you need to draw a rectangle around each object as it is shown in the picture:
+![](./images/cvat.jpg) 
+
+This is a hard work that was done for a week or two, and you can find the results of this wor in the kaggle: https://www.kaggle.com/atugaryov/dobble
+But 390 images is not enough to train a model. To get more images we used roboflow tool to augment images and have more data - around 900 images. The dataset was splited to 3 subset: train, validate and test. This is nessesary for successfully training. The result dataset you can find in the releases of the reposiroy.
+
+The data was ready for train and we started to search info about transfer learning of YoloV4 network. There are many materials about this misteral process. 
+One of the most important part of training is hardware with GPU. We were lucky - we had a laptop with Nvidia GPU. An we have to setup environment for GPU using (set up drivers and CUDA environment). THe full instructions you can find in the Nvidia materials.
+
+The next step is preparing environment for transfer learning of the YoloV4. We used Darkbent repository for it:
+
 0. Clone the Dobblenet repository:
     ```sh
     git clone git@github.com:artyomtugaryov/dobblenet.git
