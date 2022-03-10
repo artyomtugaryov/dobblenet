@@ -1,34 +1,43 @@
 # How to train YoloV4 Dobblenet in the Darknet format
 
-Once upon a time, when everyone worked from the office and did not think about remote work, my colleagues and I decided to take a break from work and play game that can distract us from work. We chose to play the Dobble (Spot it). Dobble is a speed and observation game for the everyone. The aim of the game -
-Each two cards have one symbol in common. You need to be the first to find and name it to win the card.
+Once upon a time, when everyone worked from the office and did not think about remote work, my colleagues and I decided to take a break from our hardwork and play game that can distract us from routine. We chose to play the Dobble (Spot it). 
 
-After a number of games played we began to talk about what would be nice to create a programm that can help you to play Dobble or for example could be an opponent for you. This is a speed game, so a computer can be more faster than a the most speedy human. So the idea of creating an application for playing Dobble was born at that moment.
+## The Dobble
+Dobble is a speed and observation card game for the everyone. But dobble cards are circle and each card contains 8 images. And every wo cards contains only one identical image. The player have to find this identical image in tha pair of cards and get rid off all cards in hands. 
+More information about this game you can find in the the website: www.dobblegame.com/
 
-We are working in a big OpenVINO team that are creating the framework for optimization and inference neural networks. Of course we wanted to use our framework to built our tools and a neural network should be the cornerstone of the tool. 
+After a number of games played we began to talk about what would be nice to create a programm that can help you to play Dobble or for example could be an opponent for you. This is a speed game, so a computer can be more faster than a the most speedy human player. So the idea of creating an application for playing Dobble was born at that moment.
 
-It was absolutelly clear for us that the neural network shoud solve Object Detection task and the most popular model to solve OD task was YoloV4, we decided to use this topology.
+We have been working in a big OpenVINO team that has been creating the framework for optimization and inference neural networks. Of course we wanted to use our framework and tool called DL Workbench to built the tools and a neural network should be the cornerstone of the tool. 
 
-We understood that the we need a lot of data to train our custom YoloV4. We started to collect the dataset from taking photos of the dobble cards that we had. The decl of cards of this game collects 55 and we took around 4 photos of each card in different angles. There are around 390 photos as results. 
-But taking the photos is not the main problem of dataset collection, the main challenge is annotate each icon on each photo. There are 8 images in each photos, so there are 3120 in the 390 images. Annotate means dedicate cooddinats of each object in each photo. There are many different dataset formats that dedicates formats of storing images and annotations for each image. 
-To annotate the dataset we used CVAT tool that provides usefull interface for annoations: in each image you need to draw a rectangle around each object as it is shown in the picture:
+## Detect task to be solved
+The were a lot of minds in our heads, but we decided to build the application that can find images in each card of the game and more - it has to say where the image is located. It was absolutelly clear for us that the neural network shoud solve Object Detection task. At that moment the most popular model to solve OD task was YoloV4, we decided to use this topology. More information about YoloV4: https://arxiv.org/abs/2004.10934
+
+
+## The Data
+We realized that needed a lot of data to train our neural network, and started collecting a dataset by photographing the dobble cards we had. The decl of cards of this game collects 55 and we took around 4 photos of each card in different angles and took around 390 photos as results. 
+But taking the photos is not the main problem of dataset collection, the main challenge was annotate each icon on each photo. There are 8 images in each photos, so there are 3120 in the 390 images. Annotate means dedicate coordinates of each object in each photo.
+To annotate the dataset we used [CVAT tool](https://github.com/openvinotoolkit/cvat) that provides usefull interface for annoations: in each image you need to draw a rectangle around each object as it is shown in the picture:
+
 ![](./images/cvat.jpg) 
 
-This is a hard work that was done for a week or two, and you can find the results of this wor in the kaggle: https://www.kaggle.com/atugaryov/dobble
-But 390 images is not enough to train a model. To get more images we used roboflow tool to augment images and have more data - around 900 images. The dataset was splited to 3 subset: train, validate and test. This is nessesary for successfully training. The result dataset you can find in the releases of the reposiroy.
+This is a hard work that was done for a week or two, and you can find ther results in the kaggle: https://www.kaggle.com/atugaryov/dobble
+
+
+But 390 images is not enough to train a model (as we thought). To get more images we used the roboflow tool to augment images and have more data - around 900 images. The dataset was splited to 3 subset: train, validate and test. This is nessesary for successfully training. The result dataset you can find in the releases of the reposiroy.
 
 The data was ready for train and we started to search info about transfer learning of YoloV4 network. There are many materials about this misteral process. 
 One of the most important part of training is hardware with GPU. We were lucky - we had a laptop with Nvidia GPU. An we have to setup environment for GPU using (set up drivers and CUDA environment). THe full instructions you can find in the Nvidia materials.
 
-The next step is preparing environment for transfer learning of the YoloV4. We used Darkbent repository for it:
+The next step is preparing environment for transfer learning of the YoloV4. We used the fork of AlexeyAB of Darknet repository to process transer learning. To start the process, let's first clone the main repository of the Dobblenet:
 
-0. Clone the Dobblenet repository:
     ```sh
     git clone git@github.com:artyomtugaryov/dobblenet.git
     cd dobblenet
     ```
 
-1. Create a virtual environment to work with python:
+The repository contains needed assets (scripts, data and documentations) to make Dobblenet. The next step we have to do is prepare python environment:
+
     ```sh
     python3 -m pip install virtualenv
     python3 -m virtualenv venv
@@ -37,19 +46,22 @@ The next step is preparing environment for transfer learning of the YoloV4. We u
     python3 -m pip install -r requirements.txt
     ```
 
-2. Download the Dobble dataset (dobblenet_dataset.zip) from [GitHub releases](https://github.com/artyomtugaryov/dobblenet/releases/latest):
+
+And than we can download the prepared dataset using scripts from the repository:
+
     ```sh
     python3 scripts/download_dataset.py --dataset-link https://github.com/artyomtugaryov/dobblenet/releases/download/alpha0.2/dobblenet_dataset.zip
     ```
 
-    The dataset will apear in the `dataset` folder in the root of the repository. 
+The dataset will apear in the `dataset` folder in the root of the repository. 
+As we already sad, we use the Darknet repository from the [AlexeyAB fork](https://github.com/AlexeyAB/darknet). So, we need to clone it:
 
-3. Clone the Darknet repository from the [AlexeyAB fork](https://github.com/AlexeyAB/darknet):
     ```sh
     git clone git@github.com:AlexeyAB/darknet.git
     ```
 
-4. Move dataset files to the folder with the darknet repository:
+And move dataset files to the folder with the darknet repository:
+
     ```sh
     python3 scripts/spread_dataset.py
     ```
