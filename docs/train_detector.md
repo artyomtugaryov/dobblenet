@@ -1,10 +1,13 @@
 # How to train YoloV4 Dobblenet in the Darknet format
 
-Once upon a time, when everyone worked from the office and did not think about remote work, my colleagues and I decided to take a break from our hardwork and play game that can distract us from routine. We chose to play the Dobble (Spot it). 
+Once upon a time, when everyone worked from the office and did not think about remote work, my colleagues and I decided to take a break from our hardwork and play game that can distract us from routine and chose to play the Dobble (you may know the game as Spot it).
 
 ## The Dobble
-Dobble is a speed and observation card game for the everyone. But dobble cards are circle and each card contains 8 images. And every wo cards contains only one identical image. The player have to find this identical image in tha pair of cards and get rid off all cards in hands. 
-More information about this game you can find in the the website: www.dobblegame.com/
+Dobble is a speed and observation card game for the everyone. The dobble cards are circle and each card contains 8 images of specific cartoon icons, for example Taxi, Apple, Target and e.t.c. Every wo cards contains only one identical image and a player have to find this identical image in tha pair of cards, say about it and put their card on the common deck faster than another players. Now all players starts to find identical images beatween their cards and the card that was put on the desk. The player who gets rid all cards in hands off win.
+More information about this game you can find in the the website: www.dobblegame.com. Below you can find some photos of the dobble cards:
+
+[](./images/cards.jpg)
+
 
 After a number of games played we began to talk about what would be nice to create a programm that can help you to play Dobble or for example could be an opponent for you. This is a speed game, so a computer can be more faster than a the most speedy human player. So the idea of creating an application for playing Dobble was born at that moment.
 
