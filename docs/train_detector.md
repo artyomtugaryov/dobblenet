@@ -26,8 +26,13 @@ This is a hard work that was done for a week or two, and you can find ther resul
 
 But 390 images is not enough to train a model (as we thought). To get more images we used the roboflow tool to augment images and have more data - around 900 images. The dataset was splited to 3 subset: train, validate and test. This is nessesary for successfully training. The result dataset you can find in the releases of the reposiroy.
 
+## GPU Environement
+
 The data was ready for train and we started to search info about transfer learning of YoloV4 network. There are many materials about this misteral process. 
 One of the most important part of training is hardware with GPU. We were lucky - we had a laptop with Nvidia GPU. An we have to setup environment for GPU using (set up drivers and CUDA environment). THe full instructions you can find in the Nvidia materials.
+
+
+## Set up Darknet
 
 The next step is preparing environment for transfer learning of the YoloV4. We used the fork of AlexeyAB of Darknet repository to process transer learning. To start the process, let's first clone the main repository of the Dobblenet:
 
@@ -66,7 +71,8 @@ And move dataset files to the folder with the darknet repository:
     python3 scripts/spread_dataset.py
     ```
 
-5. Open the `Makefile` inside the darknet repository and change:
+The Darknet is toolset and library that helps us train/validate/test dobblenet. To start use the Darknet we need to build it from sources. for it first we need to configure the `Makefile` in the root of the Darknet folder. Open the `Makefile` inside the darknet repository and change:
+    
     If you have set up GPU and CUDNN:
         1. `GPU=0` -> `GPU=1` 
         2. `CUDNN=0` -> `CUDNN=1`
@@ -74,31 +80,33 @@ And move dataset files to the folder with the darknet repository:
         1. `OPENCV=0` -> `OPENCV=1`
         2. `AVX=0` -> `AVX=1`
 
-7. Initialize the CUDA environment:
+The next step is initialize the CUDA environment:
+    
     ```sh
     export LD_LIBRARY_PATH="/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH"
     export PATH="/usr/local/cuda-11.0/bin/:$PATH"
     ```
-
-8. Compile darknet:
+And now we can compile the darknet:
+    
     ```sh
     cd darknet
     make -j 4
     ```
+Ater successfully build you can find `darknet` binary file in the root of the darknet repository 
 
-    Ater successfully build you can find `darknet` binary file in the root of the darknet repository 
+We will process transfer learning, so we need to download pre-trained weights of the YoloV4 
 
-9. Download the pre-trained YOLOv4 weights:
     ```sh
     wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.conv.137
     ```
 
-10. Copy the dobblenet config to `darknet/cfg` folder:
+The Darknet provides podibility to train different neural networks, but we need to create configuration for YoloV4 tolopogy. The configuration file is already in the Dobblenet folder and you can use it to start training:
+
     ```sh
     ./darknet detector train data/obj.data ../configs/dobblenet.darknet.cfg yolov4.conv.137 -dont_show -map
     ```
 
-    This process takes much time - around 24 hours (depends on GPU). The first output looks like the following:
+The first output looks like the following:
 
     ```
     CUDA-version: 11000 (11060), cuDNN: 8.0.4, GPU count: 1  
@@ -112,8 +120,31 @@ And move dataset files to the folder with the darknet repository:
     Create cudnn-handle 0 
     conv     32       3 x 3/ 1    416 x 416 x   3 ->  416 x 416 x  32 0.299 BF
     ...
+    608 x 608 
+    Create 6 permanent cpu-threads 
+    try to allocate additional workspace_size = 81.03 MB 
+    CUDA allocate done! 
+    Loaded: 5.643464 seconds
+    v3 (iou loss, Normalizer: (iou: 0.07, obj: 1.00, cls: 1.00) Region 139 Avg (IOU: 0.000000), count: 1, class_loss = 4643.162598, iou_loss = 0.000000, total_loss = 4643.162598 
+    v3 (iou loss, Normalizer: (iou: 0.07, obj: 1.00, cls: 1.00) Region 150 Avg (IOU: 0.342851), count: 6, class_loss = 976.097534, iou_loss = 1.449280, total_loss = 977.546814 
+    v3 (iou loss, Normalizer: (iou: 0.07, obj: 1.00, cls: 1.00) Region 161 Avg (IOU: 0.368945), count: 13, class_loss = 519.587219, iou_loss = 0.669678, total_loss = 520.256897    
+    ....
+    (next mAP calculation at 1000 iterations) 
+    1: 2219.531006, 2219.531006 avg loss, 0.000000 rate, 22.141197 seconds, 64 images, -1.000000 hours left
     ```
 
-    You can stop the training through 24 - 48 hours.
-    The results (weights) are in `darknet/trainig` folder - `_best.weights` and `_last.weights`
-    
+In the output we specially need to notice the value of average loss of the mean Average Precision (mean average precision) - this value shows how good  the  netwok detect icons. Than less this  than better. We stopped the training process when these values starts less 1.
+
+After stop the training the results (weights) are in `darknet/trainig` folder - `_best.weights` and `_last.weights`.
+
+
+## Visualize inference results.
+After training you can visualize the results of inference in one image using the darknet. For it run the darknet in the test format:
+
+    ```sh
+    ./darknet detector test data/obj.data ../configs/dobblenet.darknet.cfg training/yolov4_last.weights
+    ```
+And then past path to image that you can inference. The result of the inference you will see in the opened window like in the screenshot:
+
+[](./images/test.jpg)
+
