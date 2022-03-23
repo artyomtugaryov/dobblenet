@@ -39,8 +39,8 @@ def copy_file(source_file_path: Path, result_file_path: Path):
     shutil.copy(source_file_path, result_file_path)
 
 
-def adjust_data_file(obj_data_file_path: Path):
-    with obj_data_file_path.open('r') as obj_data_file:
+def adjust_data_file(data_file_path: Path, darknet_data_folder: Path, all=True):
+    with data_file_path.open() as obj_data_file:
         obj_data_content = obj_data_file.readlines()
     
     result_content = []
@@ -48,32 +48,14 @@ def adjust_data_file(obj_data_file_path: Path):
         separate_line = line.split(' ')
         first_element = separate_line[0]
         result = line
-        if first_element in {'train', 'valid', 'test', 'names'}:
+        if not line.isspace() and all or first_element in {'train', 'valid', 'test', 'names'}:
             last_element = separate_line[-1]
-            new_path = Path('data') / last_element
+            new_path = darknet_data_folder / last_element
             result = line.replace(str(last_element), str(new_path))
         result_content.append(result)
     
-    with obj_data_file_path.open('w') as obj_data_file:
+    with data_file_path.open('w') as obj_data_file:
         obj_data_file.writelines(result_content)
-
-
-def adjust_data_file(file_path: Path):
-    with file_path.open('r') as data_file:
-        content = data_file.readlines()
-    
-    result_content = []
-    for line in content:
-        if not line:
-            continue
-        separate_line = line.split(' ')
-        last_element = separate_line[-1]
-        new_path = Path('data') / last_element
-        result = line.replace(str(last_element), str(new_path))
-        result_content.append(result)
-    
-    with file_path.open('w') as data_file:
-        data_file.writelines(result_content)
 
 
 def copy_dataset_metadata(dataset_path: Path, darknet_root_path: Path):
@@ -86,23 +68,23 @@ def copy_dataset_metadata(dataset_path: Path, darknet_root_path: Path):
     source_obj_data_file_path = dataset_path / 'obj.data'
     darknet_obj_data_file_path = darknet_data_folder / 'obj.data'
     copy_file(source_obj_data_file_path, darknet_obj_data_file_path)
-    adjust_data_file(darknet_obj_data_file_path)
+    adjust_data_file(darknet_obj_data_file_path, darknet_data_folder, all=False)
 
     source_test_file_path = dataset_path / 'test.txt'
     darknet_test_file_path = darknet_data_folder / 'test.txt'
     copy_file(source_test_file_path, darknet_test_file_path)
-    adjust_data_file(darknet_test_file_path)
+    adjust_data_file(darknet_test_file_path, darknet_data_folder)
 
     source_valid_file_path = dataset_path / 'valid.txt'
     darknet_valid_file_path = darknet_data_folder / 'valid.txt'
     copy_file(source_valid_file_path, darknet_valid_file_path)
-    adjust_data_file(darknet_valid_file_path)
+    adjust_data_file(darknet_valid_file_path, darknet_data_folder)
 
 
     source_train_file_path = dataset_path / 'train.txt'
     darknet_train_file_path = darknet_data_folder / 'train.txt'
     copy_file(source_train_file_path, darknet_train_file_path)
-    adjust_data_file(darknet_train_file_path)
+    adjust_data_file(darknet_train_file_path, darknet_data_folder)
 
     
 def main(dataset_path: Path, darknet_root_path: Path):
