@@ -2,7 +2,17 @@ import argparse
 import matplotlib.pyplot as plt
 from pathlib import Path
 import re
-from typing import List
+from typing import List, Tuple
+from enum import Enum
+
+
+class Parameter(Enum):
+    loss = 'loss'
+    avg_loss = 'avg_loss'
+    map = 'map'
+
+    def __str__(self):
+        return self.value
 
 
 def argument_parser():
@@ -12,7 +22,11 @@ def argument_parser():
                         required=True,
                         default='',
                         help='Path to training logs')
-
+    parser.add_argument('--parameter',
+                        type=Parameter,
+                        required=True,
+                        help='Parameter to plot',
+                        choices=list(Parameter))
     parser.add_argument('--output',
                         type=Path,
                         default='plot.png',
@@ -21,33 +35,83 @@ def argument_parser():
 
 
 
-def read_data(log_file_path: Path) -> List[str]:
-
-    data_regexp = re.compile('\s(?P<iteration>\d+):\s(?P<loss>\d+.\d+),\s(?P<avg_loss>\d+.\d+)\savg\sloss.*')
+def read_data(pattern, x_label_group: str, y_label_group:str, log_data: List[str]) -> Tuple[List[float], List[float]]:
     
-    with log_file_path.open() as log_file_path:
-        lines = log_file_path.readlines()
-    iterations = []
-    losses = []
-    avg_losses = []
+    x_values = []
+    y_values = []
 
-    for line in lines:
-        match = data_regexp.match(line)
+    for line in log_data:
+        match = pattern.match(line)
         if not match:
             continue
-        iterations.append(int(match.group('iteration')))
-        losses.append(float(match.group('loss')))
-        avg_losses.append(float(match.group('avg_loss')))
+        x_values.append(float(match.group(x_label_group)))
+        y_values.append(float(match.group(y_label_group)))
+        
+    return x_values, y_values
 
-    return iterations, losses, avg_losses
+def get_loss_pattern() -> Tuple[List[int], str, str]:
+    x_group_name = 'iteration'
+    y_group_name = 'loss'
+    return (
+        re.compile(rf'\s(?P<{x_group_name}>\d+):\s(?P<{y_group_name}>\d+.\d+),\s\d+.\d+\savg\sloss.*'),
+        x_group_name,
+        y_group_name
+    )
+
+def get_avg_loss_pattern() -> Tuple[List[int], str, str]:
+    x_group_name = 'iteration'
+    y_group_name = 'avg_loss'
+    return (
+        re.compile(rf'\s(?P<{x_group_name}>\d+):\s\d+.\d+,\s(?P<{y_group_name}>\d+.\d+)\savg\sloss.*'),
+        x_group_name,
+        y_group_name
+    )
 
 
-def main(log_file_path: Path, output_path: Path):
-    iterations, losses, avg_loss = read_data(log_file_path)
+def get_map_pattern() -> Tuple[List[int], str, str]:
+    x_group_name = 'iteration'
+    y_group_name = 'mAP'
+    return (
+        re.compile(rf'\siteration\s(?P<{x_group_name}>\d+)\s:mean_average_precision\s\(mAP@0.50\)\s=\s(?P<{y_group_name}>\d\.\d+).*'),
+        x_group_name,
+        y_group_name
+    )
 
-    plt.plot(iterations, losses)
-    plt.plot(iterations, avg_loss)
-    plt.ylabel('Loss')
+def get_pattern(parameter: Parameter) -> Tuple:
+    parameter_per_pattern = {
+        Parameter.loss: get_loss_pattern,
+        Parameter.map: get_map_pattern
+    }
+    return parameter_per_pattern[parameter]()
+
+def read_data(log_file_path: Path, parameter: Parameter) -> Tuple[List[float], List[float]]:
+    pattern, x_group_name, y_group_name = get_pattern(parameter) 
+    with log_file_path.open() as log_file:
+        log_data = log_file.readlines()
+    
+    x_values = []
+    y_values = []
+
+    for line in log_data:
+        match = pattern.match(line)
+        if not match:
+            continue
+        dir(match)
+        x_value = float(match.group(x_group_name))
+        y_value = float(match.group(y_group_name))
+
+        x_values.append(x_value)
+        y_values.append(y_value)
+
+    return x_values, y_values
+
+
+def main(log_file_path: Path, parameter: Parameter, output_path: Path):
+    x, y = read_data(log_file_path, parameter)
+
+    plt.plot(x, y)
+    plt.plot(x, y)
+    plt.ylabel('mAP')
     plt.xlabel('Iterations')
     plt.grid()
 
@@ -57,4 +121,4 @@ def main(log_file_path: Path, output_path: Path):
 
 if __name__ == '__main__':
     args = argument_parser()
-    main(args.log_file_path, args.output)
+    main(args.log_file_path, args.parameter, args.output)
