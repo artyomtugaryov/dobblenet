@@ -4,12 +4,13 @@ from pathlib import Path
 import re
 from typing import List, Tuple
 from enum import Enum
-
+import numpy as np
+import os 
 
 class Parameter(Enum):
-    loss = 'loss'
-    avg_loss = 'avg_loss'
-    map = 'map'
+    loss = 'Loss'
+    avg_loss = 'Average Loss'
+    map = 'mAP'
 
     def __str__(self):
         return self.value
@@ -108,14 +109,25 @@ def read_data(log_file_path: Path, parameter: Parameter) -> Tuple[List[float], L
 
 def main(log_file_path: Path, parameter: Parameter, output_path: Path):
     x, y = read_data(log_file_path, parameter)
+  
+    # x.insert(0, 0)
+    # y.insert(0, 0)
+    
+    n = 7000
+    x = x[:n+1]
+    y = y[:n+1]
 
-    plt.plot(x, y)
-    plt.plot(x, y)
-    plt.ylabel('mAP')
+    y = [min(10, _y) for _y in y]
+
+    plt.style.use(os.path.join(os.path.dirname(os.path.realpath(__file__)),  'gadfly.mplstyle'))
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(x, y)
+
     plt.xlabel('Iterations')
-    plt.grid()
+    plt.ylabel(f'{parameter.value}')
 
-    plt.savefig(output_path)
+    plt.savefig(output_path, dpi=700)
 
 
 

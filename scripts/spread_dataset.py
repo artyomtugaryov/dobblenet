@@ -2,11 +2,7 @@ import argparse
 from pathlib import Path
 import shutil
 
-from common import get_default_dataset_folder, get_darknet_folder
-
-
-def get_current_folder() -> Path:
-    return Path.cwd()
+from common import get_default_dataset_folder, get_darknet_folder, get_current_folder
 
 
 def argument_parser():
