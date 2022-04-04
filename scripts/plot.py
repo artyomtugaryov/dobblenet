@@ -81,6 +81,7 @@ def get_map_pattern() -> Tuple[List[int], str, str]:
 def get_pattern(parameter: Parameter) -> Tuple:
     parameter_per_pattern = {
         Parameter.loss: get_loss_pattern,
+        Parameter.avg_loss: get_avg_loss_pattern,
         Parameter.map: get_map_pattern
     }
     return parameter_per_pattern[parameter]()
@@ -110,14 +111,13 @@ def read_data(log_file_path: Path, parameter: Parameter) -> Tuple[List[float], L
 def main(log_file_path: Path, parameter: Parameter, output_path: Path):
     x, y = read_data(log_file_path, parameter)
   
-    # x.insert(0, 0)
-    # y.insert(0, 0)
+    x.insert(0, 0)
+    y.insert(0, 0)
     
     n = 7000
-    x = x[:n+1]
-    y = y[:n+1]
+    x = list(filter(lambda _x: _x<n, x))
+    y = y[:len(x)]
 
-    y = [min(10, _y) for _y in y]
 
     plt.style.use(os.path.join(os.path.dirname(os.path.realpath(__file__)),  'gadfly.mplstyle'))
     fig = plt.figure()
@@ -128,7 +128,6 @@ def main(log_file_path: Path, parameter: Parameter, output_path: Path):
     plt.ylabel(f'{parameter.value}')
 
     plt.savefig(output_path, dpi=700)
-
 
 
 if __name__ == '__main__':

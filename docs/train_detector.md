@@ -171,7 +171,7 @@ If you want to train from the beginning, then use flag in the end of training co
 In the text of the message you can find information about mean average precision. AS we can see in the message mAP of the model is 0.960822 or 96.0822%. This is after 1000 iteration.
 By logs we can plot changes of loss and mean loss:
 
-![](./images/loss.png)
+![](./images/avg_loss.png)
 
 In addition you can find mAP for each class:
 
@@ -237,12 +237,117 @@ class_id = 56, name = Zebra, ap = 100.00%   	 (TP = 12, FP = 0)
 
 After stop the training the results (weights) are in `darknet/trainig` folder - `_best.weights` and `_last.weights`.
 
+## Evaluate accuracy measuarments
+
+To mesuare mean average precision for our neural network we can use darknet again: 
+
+```sh
+./darknet detector map data/obj.data ../configs/dobblenet.darknet.cfg training/dobblenet_final.weights
+```
+
+And as result we can of these command we can obserrve mAP for each class and for all validation dataset:
+
+```
+CUDA-version: 11000 (11060), cuDNN: 8.0.4, GPU count: 1  
+ OpenCV version: 4.2.0
+ 0 : compute_capability = 750, cudnn_half = 0, GPU: NVIDIA GeForce GTX 1650 with Max-Q Design 
+net.optimized_memory = 0 
+mini_batch = 1, batch = 64, time_steps = 1, train = 0 
+   layer   filters  size/strd(dil)      input                output
+   0 Create CUDA-stream - 0 
+ Create cudnn-handle 0 
+conv     32       3 x 3/ 1    416 x 416 x   3 ->  416 x 416 x  32 0.299 BF
+   1 conv     64       3 x 3/ 2    416 x 416 x  32 ->  208 x 208 x  64 1.595 BF
+....
+Done! Loaded 162 layers from weights-file 
+
+ calculation mAP (mean average precision)...
+ Detection layer: 139 - type = 28 
+ Detection layer: 150 - type = 28 
+ Detection layer: 161 - type = 28 
+84
+ detections_count = 686, unique_truth_count = 657  
+class_id = 0, name = Anchor, ap = 100.00%   	 (TP = 11, FP = 0) 
+class_id = 1, name = Apple, ap = 100.00%   	 (TP = 9, FP = 0) 
+class_id = 2, name = Baby bottle, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 3, name = Bomb, ap = 100.00%   	 (TP = 6, FP = 0) 
+class_id = 4, name = Cactus, ap = 100.00%   	 (TP = 11, FP = 0) 
+class_id = 5, name = Candle, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 6, name = Carrot, ap = 100.00%   	 (TP = 7, FP = 0) 
+class_id = 7, name = Cheese, ap = 100.00%   	 (TP = 14, FP = 0) 
+class_id = 8, name = Chess knight, ap = 100.00%   	 (TP = 10, FP = 0) 
+class_id = 9, name = Clock, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 10, name = Clown, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 11, name = Diasy flower, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 12, name = Dinosaur, ap = 100.00%   	 (TP = 7, FP = 0) 
+class_id = 13, name = Dog, ap = 100.00%   	 (TP = 10, FP = 0) 
+class_id = 14, name = Dolphin, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 15, name = Dragon, ap = 100.00%   	 (TP = 11, FP = 0) 
+class_id = 16, name = Exclamation point, ap = 100.00%   	 (TP = 10, FP = 0) 
+class_id = 17, name = Eye, ap = 100.00%   	 (TP = 9, FP = 0) 
+class_id = 18, name = Fire, ap = 100.00%   	 (TP = 8, FP = 0) 
+class_id = 19, name = Four leaf clover, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 20, name = Ghost, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 21, name = Green splats, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 22, name = Hammer, ap = 100.00%   	 (TP = 11, FP = 0) 
+class_id = 23, name = Heart, ap = 100.00%   	 (TP = 14, FP = 0) 
+class_id = 24, name = Ice cube, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 25, name = Igloo, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 26, name = Key, ap = 100.00%   	 (TP = 9, FP = 0) 
+class_id = 27, name = Ladybird -Ladybug-, ap = 98.08%   	 (TP = 12, FP = 1) 
+class_id = 28, name = Light bulb, ap = 92.86%   	 (TP = 13, FP = 0) 
+class_id = 29, name = Lightning bolt, ap = 100.00%   	 (TP = 15, FP = 0) 
+class_id = 30, name = Lock, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 31, name = Maple leaf, ap = 100.00%   	 (TP = 9, FP = 0) 
+class_id = 32, name = Moon, ap = 100.00%   	 (TP = 11, FP = 0) 
+class_id = 33, name = No Entry sign, ap = 100.00%   	 (TP = 12, FP = 1) 
+class_id = 34, name = Orange scarecrow man, ap = 100.00%   	 (TP = 14, FP = 0) 
+class_id = 35, name = Pencil, ap = 81.82%   	 (TP = 9, FP = 0) 
+class_id = 36, name = Purple bird, ap = 95.05%   	 (TP = 13, FP = 1) 
+class_id = 37, name = Purple cat, ap = 100.00%   	 (TP = 9, FP = 0) 
+class_id = 38, name = Purple dobble hand man, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 39, name = Question mark, ap = 100.00%   	 (TP = 10, FP = 0) 
+class_id = 40, name = Red lips, ap = 100.00%   	 (TP = 14, FP = 0) 
+class_id = 41, name = Scissors, ap = 100.00%   	 (TP = 14, FP = 0) 
+class_id = 42, name = Skull and crossbones, ap = 100.00%   	 (TP = 10, FP = 0) 
+class_id = 43, name = Snowflake, ap = 100.00%   	 (TP = 11, FP = 0) 
+class_id = 44, name = Snowman, ap = 100.00%   	 (TP = 6, FP = 0) 
+class_id = 45, name = Spider, ap = 92.86%   	 (TP = 13, FP = 0) 
+class_id = 46, name = Spider-s web, ap = 100.00%   	 (TP = 7, FP = 1) 
+class_id = 47, name = Sun, ap = 100.00%   	 (TP = 9, FP = 1) 
+class_id = 48, name = Sunglasses, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 49, name = Target-crosshairs, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 50, name = Taxi car, ap = 100.00%   	 (TP = 13, FP = 0) 
+class_id = 51, name = Tortoise, ap = 100.00%   	 (TP = 11, FP = 0) 
+class_id = 52, name = Treble clef, ap = 100.00%   	 (TP = 14, FP = 0) 
+class_id = 53, name = Tree, ap = 100.00%   	 (TP = 19, FP = 0) 
+class_id = 54, name = Water drip, ap = 100.00%   	 (TP = 12, FP = 0) 
+class_id = 55, name = Yin and Yang, ap = 100.00%   	 (TP = 16, FP = 0) 
+class_id = 56, name = Zebra, ap = 100.00%   	 (TP = 12, FP = 0) 
+
+ for conf_thresh = 0.25, precision = 0.99, recall = 0.99, F1-score = 0.99 
+ for conf_thresh = 0.25, TP = 652, FP = 5, FN = 5, average IoU = 88.99 % 
+
+ IoU threshold = 50 %, used Area-Under-Curve for each unique Recall 
+ mean average precision (mAP@0.50) = 0.993099, or 99.31 % 
+Total Detection Time: 22 Seconds
+```
+
+The result mAP for the model is 99.31 %. 
+in addition, using the logs of the learning process and prepared scripts, you can plot the map changes in training process:
+
+```sh
+python scripts/plot.py --log-file-path 15000.log --parameter mAP
+```
+
+![](./images/map.png)
+
 ## Visualize inference results.
 After training you can visualize the results of inference in one image using the darknet. For it run the darknet in the test format:
 
-    ```sh
-    ./darknet detector test data/obj.data ../configs/dobblenet.darknet.cfg training/yolov4_last.weights
-    ```
+```sh
+./darknet detector test data/obj.data ../configs/dobblenet.darknet.cfg training/yolov4_last.weights
+```
 And then past path to image that you can inference. The result of the inference you will see in the opened window like in the screenshot:
 
 ![](./images/test.jpg)
