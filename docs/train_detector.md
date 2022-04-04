@@ -18,59 +18,59 @@ We are working in a big OpenVINO team on creating the framework for neural netwo
 ## Detect task to be solved  
 There were a lot of ideas, but we decided to build the application that finds images in each card of the game and, moreover, says where the image is located. It was absolutely clear for us that the neural network should solve Object Detection task. At that moment the most popular model to solve OD task was YoloV4, so we decided to use this topology. More information about YoloV4: https://arxiv.org/abs/2004.10934  
 
-  
+
 ## The Data  
 We realized that we needed a lot of data to train our neural network, so we started collecting a dataset by photographing the dobble cards we had. The deck of cards of this game contains 55 items and we took around 4 photos of each card from different angles. As a result, we took around 390 photos.
 However, taking the photos is not the biggest problem of dataset collection. The main challenge was to annotate each icon for each photo. There are 8 images in each photo, so there are 3120 in the 390 images. To annotate means to determine coordinates of each object in every photo.
 To annotate the dataset we used [CVAT tool](https://github.com/openvinotoolkit/cvat) that provides useful interface for annotating: for every image you need to draw a rectangle around each object as it is shown in the picture:
 
-![](./images/cvat.jpg)   
+![](./images/cvat.jpg)
 
-This is a hard work that was completed in a week or two, and you can find its results in the kaggle: https://www.kaggle.com/atugaryov/dobble  
+This is a hard work that was completed in a week or two, and you can find its results in the kaggle: https://www.kaggle.com/atugaryov/dobble
 
-  
+
 But 390 images is not enough to train a model (as we thought). To get more images we used the roboflow tool to augment images and obtain more data - around 900 images. The dataset was split into 3 subsets: train, validation and test. This is necessary for successful training. You can find the resulting dataset  in the releases of the repository.  
 
-## GPU Environement  
+## GPU Environement
 
 The data was ready for model training, so we started to research info on transfer learning of YoloV4 network. 
 One of the most important aspects of training is to obtain access to hardware with GPU. We were lucky - we had a laptop with Nvidia GPUб so we only had to setup environment for GPU, i.e. drivers and CUDA environment. You can find extensive instructions in the Nvidia materials.  
 
-## Set up Darknet repository  
+## Set up Darknet repository
 
-The next step is environment preparation for YoloV4 transfer learning. We used the fork of AlexeyAB of Darknet repository to process transfer learning. To start the process, clone the main repository of the Dobblenet:  
+The next step is environment preparation for YoloV4 transfer learning. We used the fork of AlexeyAB of Darknet repository to process transfer learning. To start the process, clone the main repository of the Dobblenet:
 
-```sh  
+```
 git clone git@github.com:artyomtugaryov/dobblenet.git
 cd dobblenet
-```  
+```
 
 The repository contains all the required assets (scripts, data and documentations) to create Dobblenet. The next step we have to do is to prepare python environment:  
 
-```sh  
+```sh
 python3 -m pip install virtualenv
 python3 -m virtualenv venv
 source venv/bin/activate
 
 python3 -m pip install -r requirements.txt
-```  
+```
 
-And then we can download the prepared dataset using scripts from the repository:  
+And then we can download the prepared dataset using scripts from the repository:
 
-```sh  
+```sh
 python3 scripts/download_dataset.py --dataset-link https://github.com/artyomtugaryov/dobblenet/releases/download/alpha0.2/dobblenet_dataset.zip
-```  
+```
 
-The dataset will apear in the `dataset` subfolder of the repository root.   
+The dataset will apear in the `dataset` subfolder of the repository root.
 As we already said, we use the Darknet repository from the [AlexeyAB fork](https://github.com/AlexeyAB/darknet). So, we need to clone it:  
 
-```sh  
+```sh
 git clone git@github.com:AlexeyAB/darknet.git
 ```
 
-And move dataset files to the folder with the darknet repository:  
+And move dataset files to the folder with the darknet repository:
 
-```sh  
+```sh 
 python3 scripts/spread_dataset.py
 ```
 
