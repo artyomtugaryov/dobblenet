@@ -1,4 +1,3 @@
-
 # How to train YoloV4 Dobblenet in the Darknet format  
   
 Once upon a time, when everyone worked from the office and did not think about remote work, my colleagues and I decided to take a break from our hardwork and play game that can distract us from routine and chose to play the Dobble (you may know the game as Spot it).  
