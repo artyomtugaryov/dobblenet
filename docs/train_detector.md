@@ -1,51 +1,96 @@
 # How to train YoloV4 Dobblenet in the Darknet format
 
-Once upon a time, when everyone worked from the office and did not think about remote work, my colleagues and I decided to take a break from our hardwork and play game that can distract us from routine and chose to play the Dobble (you may know the game as Spot it).
+Once upon a time, when everyone was working from the office and didn’t even 
+think about working remotely, my colleagues and I decided to take a break and 
+play a game to unwind a bit. We picked a game called Dobble a.k.a. Spot it. 
 
 ## The Dobble
-Dobble is a speed and observation card game for the everyone. 
-The dobble cards are circle and each card contains 8 images of specific cartoon icons, for example `Taxi`, `Apple`, `Target` and e.t.c. There are 57 classes of icons and 55 cards at the game.  
-Every two cards contains only one identical image and a player must find this identical image in tha pair of cards, say about it and put their card on the common deck faster than another players. 
-Now all players starts to find identical images beatween their cards and the card that was put on the desk. The player who gets rid all cards in hands off - win.
-More information about this game you can find in the the website: www.dobblegame.com. Below you can find some photos of the dobble cards:
+
+Dobble is a game for all ages that tests your reaction and powers of observation. 
+Its cards have a circular shape, each card contains 8 images of certain cartoon 
+icons, such as `Taxi`, `Apple`, `Target` etc. Overall, there are 57 kinds of 
+icons and 55 cards in the game.
+
+Every two cards may only have one icon in common, and it is the player's 
+goal to find a card that has a matching image and to put it on the desk before 
+anyone else does. Then, all the players begin to look for the common image 
+between their cards and the card that was put on the desk, and so it goes. 
+The player who gets rid of all their cards the fastest wins. 
+
+You can find more details on the game on the [website](www.dobblegame.com).
+Here is what Dobble cards look like:
 
 ![](./images/card_1.jpg)
 
-After a number of played games we began to talk about what would be nice to create a programm that can help you to play Dobble or for example could be an opponent for you. This is a speed game, so a computer can be more faster than a the most speedy human player. So the idea of creating an application for playing Dobble was born at that moment.
+After we played it several times, it occurred to us how cool it would be to 
+create a program that could play Dobble with you, or even against you. 
+Especially since this game requires high reaction speed, a computer would 
+probably easily outplay the speediest human player out there. So, this is how 
+the idea to create an application for playing Dobble was born.
 
-We have been working in a big OpenVINO team that has been creating the framework for optimization and inference neural networks. Of course we wanted to use our framework and tool called DL Workbench to built the tools and a neural network should be the cornerstone of the tool. 
+Given the fact that we are a big OpenVINO team that works on creating a 
+framework for neural networks inference and optimisation, it is only natural 
+that we decided to use our DL Workbench to build all the necessary tools. 
 
-## Detect task to be solved
-There were a lot of minds in our heads, but we decided to build the application that can find images in each card of the game and more - it has to say where the image is located. It was absolutelly clear for us that the neural network shoud solve Object Detection task. At that moment the most popular model to solve OD task was YoloV4, we decided to use this topology. More information about YoloV4: https://arxiv.org/abs/2004.10934
+## Task to be solved
 
+You cannot train a model without firstly determining what task it should solve. 
+We had many thoughts on this matter, and finally decided to stick with Object 
+Detection. In other words, a model must be able to not only find an image on the 
+card, but to also determine its exact position. At the moment, the most popular 
+OD model appeared to be YoloV4, so we chose this topology. You can see more 
+information about YoloV4 [here](https://arxiv.org/abs/2004.10934).  
 
-## The Data
-We realized that needed a lot of data to train our neural network, and started collecting a dataset by photographing the dobble cards we had. The decl of cards of this game collects 55 and we took around 4 photos of each card in different angles and took around 390 photos as results. 
-But taking the photos is not the main problem of dataset collection, the main challenge was annotate each icon on each photo. There are 8 images in each photos, so there are 3120 in the 390 images. Annotate means dedicate coordinates of each object in each photo.
-To annotate the dataset we used [CVAT tool](https://github.com/openvinotoolkit/cvat) that provides usefull interface for annoations: in each image you need to draw a rectangle around each object as it is shown in the picture:
+## Data
+
+Having a sufficient amount of data is crucial for successful model training, 
+so we collected a dataset by photographing every Dobble card we had. Given the 
+fact that Dobble deck consists of 55 cards, and we took around 4 photos of each 
+from different angles, we obtained almost 390 photos. Quite a lot of work!
+
+However, there was more to come. The main challenge of creating a good usable 
+dataset is its annotation. Having 8 images in each photo, we had to determine 
+coordinates of 3120 icons in total. Fortunately, there are helpful tools for 
+such cases. We used [CVAT tool](https://github.com/openvinotoolkit/cvat) that 
+provides convenient interface for annotating: for every picture we had to draw 
+a rectangle around each object as it is shown in the picture:
 
 ![](./images/cvat.jpg) 
 
-This is a hard work that was done for a week or two, and you can find ther results in the kaggle: https://www.kaggle.com/atugaryov/dobble
+It took us a week or two to complete this tedious process. You can access the 
+fruits of our labor on [Kaggle](https://www.kaggle.com/atugaryov/dobble).
 
+And yet, 390 images is not always enough to train a model. To expand our dataset, 
+we turned to the roboflow tool to augment our image collection. As a result, 
+we obtained around 900 images. Afterwards, the dataset was split into three 
+subsets: train, validation and test, as it is usually done for efficient model 
+training. The resulting dataset can be found in the releases section of this 
+repository. 
 
-But 390 images is not enough to train a model (as we thought). To get more images we used the roboflow tool to augment images and have more data - around 900 images. The dataset was splited to 3 subset: train, validate and test. This is nessesary for successfully training. The result dataset you can find in the releases of the reposiroy.
+## GPU environment
 
-## GPU Environement
-
-The data was ready for train and we started to search info about transfer learning of YoloV4 network. There are many materials about this misteral process. 
-One of the most important part of training is hardware with GPU. We were lucky - we had a laptop with Nvidia GPU. An we have to setup environment for GPU using (set up drivers and CUDA environment). THe full instructions you can find in the Nvidia materials.
+Finally, having enough data, we started researching information on YoloV4 
+transfer learning. It is known that one of the most important aspects of model 
+training is to obtain access to hardware with a GPU. We got lucky here: our 
+company provided us with an Nvidia GPU, so we only had to worry about setting up 
+the rest, i.e. drivers and CUDA environment. You can find extensive instruction 
+for that in the Nvidia materials. 
 
 ## Set up Darknet repository
 
-The next step is preparing environment for transfer learning of the YoloV4. We used the fork of AlexeyAB of Darknet repository to process transer learning. To start the process, let's first clone the main repository of the Dobblenet:
+The next step is environment preparation for YoloV4 transfer learning. We used 
+a fork of Darknet repository by AlexeyAB to process transfer learning. 
+
+To start the process, clone the main repository of the Dobblenet:
     
 ```sh
 git clone git@github.com:artyomtugaryov/dobblenet.git
 cd dobblenet
 ```
 
-The repository contains needed assets (scripts, data and documentations) to create Dobblenet. The next step we have to do is prepare python environment:
+The repository contains all the required assets (scripts, data and 
+documentation) to recreate Dobblenet. The next step we should to take is to
+prepare python environment:
 
 ```sh
 python3 -m pip install virtualenv
@@ -55,27 +100,32 @@ source venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-And than we can download the prepared dataset using scripts from the repository:
+And then we can download the prepared dataset using scripts from the repository::
 
 ```sh
 python3 scripts/download_dataset.py --dataset-link https://github.com/artyomtugaryov/dobblenet/releases/download/alpha0.2/dobblenet_dataset.zip
 ```
 
-The dataset will apear in the `dataset` subfolder of the repository root. 
-As we already sad, we use the Darknet repository from the [AlexeyAB fork](https://github.com/AlexeyAB/darknet). So, we need to clone it:
+The dataset will appear in the `dataset` subfolder of the repository root.
+As stated before, we are going to use the Darknet repository from the 
+[AlexeyAB fork](https://github.com/AlexeyAB/darknet). 
+So, we also need to clone it:  
 
 ```sh
 git clone git@github.com:AlexeyAB/darknet.git
 ```
 
-And move dataset files to the folder with the darknet repository:
+Then, move dataset files to the folder with Darknet repository:
 
 ```sh
 python3 scripts/spread_dataset.py
 ```
 
-The Darknet is toolset and library that helps us to train/validate/test dobblenet. To start use the Darknet we need to build it from sources. For it first we need to configure the `Makefile` in the root of the Darknet folder. Open the `Makefile` inside the darknet repository and change:
-    
+Darknet is a library helps to train, validate and test Dobblenet. 
+To start using Darknet we need to build it from the sources. In order to do 
+this, we should firstly configure the `Makefile` in the root of the Darknet 
+folder. Open the `Makefile` inside the darknet repository and make the 
+following changes:  
 
 If you have set up GPU and CUDNN:
 
@@ -83,7 +133,7 @@ If you have set up GPU and CUDNN:
     2. `CUDNN=0` -> `CUDNN=1`
 
 
-In addition it is to recomended to speed up training stage to change:
+In addition, to speed up the training, it is  recommended to change this as well:
 
     1. `OPENCV=0` -> `OPENCV=1`
     2. `AVX=0` -> `AVX=1`
@@ -95,7 +145,7 @@ export LD_LIBRARY_PATH="/usr/local/cuda-11.0/lib64:$LD_LIBRARY_PATH"
 export PATH="/usr/local/cuda-11.0/bin/:$PATH"
 ```
 
-And now we can compile the darknet:
+And now we can finally compile the darknet:
     
 ```sh
 cd darknet
@@ -103,22 +153,26 @@ make -j 4
 mkdir training
 ```
 
-Ater successfully build you can find `darknet` binary file in the root of the darknet repository 
+After successful build, you can find `darknet` binary file in the root of the 
+darknet repository 
 
-We will process transfer learning, so we need to download pre-trained weights of the YoloV4 
+As we are going to perform transfer learning, we need to download the weights 
+of the pre-trained YoloV4 
 
 ```sh
 wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.conv.137
 ```
 
-The Darknet provides posibility to train different neural networks, but we need to create configuration for YoloV4 tolopogy. The configuration file is already in the Dobblenet folder and you can use it to start training:
+The Darknet provides the opportunity to train different neural networks. We need 
+to create configuration for YoloV4 topology. Its configuration file is already 
+in the Dobblenet folder, and you can use it right away to start training:
 
 ```sh
 ./darknet detector train data/obj.data ../configs/dobblenet.darknet.cfg yolov4.conv.137 -dont_show -map | tee training.log
 ```
 
 Training logs will be saved to `training.log` file.
-The first output looks like the following:
+Here is what the first output should look like:
 
 ```
 CUDA-version: 11000 (11060), cuDNN: 8.0.4, GPU count: 1  
@@ -145,8 +199,11 @@ v3 (iou loss, Normalizer: (iou: 0.07, obj: 1.00, cls: 1.00) Region 161 Avg (IOU:
 1: 2219.531006, 2219.531006 avg loss, 0.000000 rate, 22.141197 seconds, 64 images, -1.000000 hours left
 ```
 
-In the output we specially need to notice the value of loss (or mean loss) - this value shows how good the netwok detect icons. Than less this  than better. 
-After finish the training process you will see the following message:
+In the output, we should pay special attention to the value of loss (or 
+mean loss) - it shows how well the network detects icons. The less loss value is,
+the better.   
+
+After finishing training process, you are going to see the following message:
 
 ```
  calculation mAP (mean average precision)...
@@ -168,12 +225,15 @@ New best mAP!
 If you want to train from the beginning, then use flag in the end of training command: -clear
 ```
 
-In the text of the message you can find information about mean average precision. AS we can see in the message mAP of the model is 0.960822 or 96.0822%. This is after 1000 iteration.
-By logs we can plot changes of loss and mean loss:
+In the text of the message you can find information about mean average precision. 
+As we can see in the message, mAP of the model is 0.960822, or 96.0822%. 
+This value is achieved after 1000 iterations.  
+
+Using logs, we can plot changes of loss and mean loss throughout training:
 
 ![](./images/avg_loss.png)
 
-In addition you can find mAP for each class:
+In addition, you can find mAP for each class:
 
 ```
 class_id = 0, name = Anchor, ap = 61.72%   	 (TP = 11, FP = 8) 
@@ -235,17 +295,20 @@ class_id = 55, name = Yin and Yang, ap = 100.00%   	 (TP = 16, FP = 0)
 class_id = 56, name = Zebra, ap = 100.00%   	 (TP = 12, FP = 0) 
 ```
 
-After stop the training the results (weights) are in `darknet/trainig` folder - `_best.weights` and `_last.weights`.
+After training is completed, the resulting weights can be found in 
+`darknet/trainig` folder - `_best.weights` and `_last.weights`.
 
-## Evaluate accuracy measuarments
+## Accuracy evaluation
 
-To mesuare mean average precision for our neural network we can use darknet again: 
+Darknet can also help with measuring quality of our neural network in terms of 
+mean average precision:
 
 ```sh
 ./darknet detector map data/obj.data ../configs/dobblenet.darknet.cfg training/dobblenet_final.weights
 ```
 
-And as result we can of these command we can obserrve mAP for each class and for all validation dataset:
+As a result of execution of this command, mAP value is displayed for each class
+and for the whole validation set.
 
 ```
 CUDA-version: 11000 (11060), cuDNN: 8.0.4, GPU count: 1  
@@ -333,8 +396,9 @@ class_id = 56, name = Zebra, ap = 100.00%   	 (TP = 12, FP = 0)
 Total Detection Time: 22 Seconds
 ```
 
-The result mAP for the model is 99.31 %. 
-in addition, using the logs of the learning process and prepared scripts, you can plot the map changes in training process:
+You can see that the final mAP value reaches 99.31%. 
+Additionally, using the logs of the learning process and the scripts prepared 
+for you, you can plot the changes in mAP throughout the training process:
 
 ```sh
 python scripts/plot.py --log-file-path 15000.log --parameter mAP
@@ -342,12 +406,16 @@ python scripts/plot.py --log-file-path 15000.log --parameter mAP
 
 ![](./images/map.png)
 
-## Visualize inference results.
-After training you can visualize the results of inference in one image using the darknet. For it run the darknet in the test format:
+## Inference visualization
+
+After training, you can also visualize the results of inference on any image 
+using Darknet. To do that, run Darknet in the test format:
 
 ```sh
 ./darknet detector test data/obj.data ../configs/dobblenet.darknet.cfg training/yolov4_last.weights
 ```
-And then past path to image that you can inference. The result of the inference you will see in the opened window like in the screenshot:
+
+And then pass a path to the image that you would like to inference. You will see
+the result of the inference in the opened window:
 
 ![](./images/test.jpg)
